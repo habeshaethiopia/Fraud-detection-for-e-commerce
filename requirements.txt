@@ -1,3 +1,9 @@
 pandas
 logging
 emoji
+matplotlib
+seaborn
+joblib
+mlflow
+scikit-learn
+torch
