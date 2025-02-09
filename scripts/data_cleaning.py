@@ -26,97 +26,112 @@ def load_csv(file_path):
     except Exception as e:
         logging.error(f"❌ Error loading CSV file: {e}")
         raise
-
-def extract_emojis(text):
-    """ Extract emojis from text, return 'No emoji' if none found. """
-    emojis = ''.join(c for c in text if c in emoji.EMOJI_DATA)
-    return emojis if emojis else "No emoji"
-
-def remove_emojis(text):
-    """ Remove emojis from the message text. """
-    return ''.join(c for c in text if c  not in emoji.EMOJI_DATA)
-
-def extract_youtube_links(text):
-    """ Extract YouTube links from text, return 'No YouTube link' if none found. """
-    youtube_pattern = r"(https?://(?:www\.)?(?:youtube\.com|youtu\.be)/[^\s]+)"
-    links = re.findall(youtube_pattern, text)
-    return ', '.join(links) if links else "No YouTube link"
-
-def remove_youtube_links(text):
-    """ Remove YouTube links from the message text. """
-    youtube_pattern = r"https?://(?:www\.)?(?:youtube\.com|youtu\.be)/[^\s]+"
-    return re.sub(youtube_pattern, '', text).strip()
-
-def clean_text(text):
-    """ Standardize text by removing newline characters and unnecessary spaces. """
-    if pd.isna(text):
-        return "No Message"
-    return re.sub(r'\n+', ' ', text).strip()
-
 def clean_dataframe(df):
-    """ Perform all cleaning and standardization steps while avoiding SettingWithCopyWarning. """
+    """
+    Cleans a DataFrame by handling missing values, removing duplicates, and correcting data types.
+    Logs each step for traceability.
+
+    Args:
+        df (pd.DataFrame): Input DataFrame to clean.
+
+    Returns:
+        pd.DataFrame: Cleaned DataFrame.
+    """
     try:
-        df = df.drop_duplicates(subset=["ID"]).copy()  # Ensure a new copy
-        logging.info("✅ Duplicates removed from dataset.")
+        logging.info("Starting data cleaning...")
+        logging.info(f"Initial shape: {df.shape}")
+        logging.info(f"Initial columns: {df.columns.tolist()}")
 
-        # ✅ Convert Date to datetime format, replacing NaT with None
-        df.loc[:, 'Date'] = pd.to_datetime(df['Date'], errors='coerce')
-        df.loc[:, 'Date'] = df['Date'].where(df['Date'].notna(), None)
-        logging.info("✅ Date column formatted to datetime.")
+        # Handle missing values
+        logging.info("Processing missing values...")
+        missing_values = df.isnull().sum()
+        logging.info(f"Missing values per column:\n{missing_values}")
 
-        # ✅ Convert 'ID' to integer for PostgreSQL BIGINT compatibility
-        df.loc[:, 'ID'] = pd.to_numeric(df['ID'], errors="coerce").fillna(0).astype(int)
+        # Impute numerical columns with mean
+        numerical_cols = df.select_dtypes(include=['float64', 'int64']).columns
+        for col in numerical_cols:
+            if df[col].isnull().any():
+                df[col].fillna(df[col].mean(), inplace=True)
+                logging.info(f"Imputed missing values in numerical column '{col}' with mean.")
 
-        # ✅ Fill missing values
-        df.loc[:, 'Message'] = df['Message'].fillna("No Message")
-        df.loc[:, 'Media Path'] = df['Media Path'].fillna("No Media")
-        logging.info("✅ Missing values filled.")
+        # Drop rows with missing categorical values
+        categorical_cols = df.select_dtypes(include=['object', 'category']).columns
+        for col in categorical_cols:
+            if df[col].isnull().any():
+                df.dropna(subset=[col], inplace=True)
+                logging.info(f"Dropped rows with missing values in categorical column '{col}'.")
 
-        # ✅ Standardize text columns
-        df.loc[:, 'Channel Title'] = df['Channel Title'].str.strip()
-        df.loc[:, 'Channel Username'] = df['Channel Username'].str.strip()
-        df.loc[:, 'Message'] = df['Message'].apply(clean_text)
-        df.loc[:, 'Media Path'] = df['Media Path'].str.strip()
-        logging.info("✅ Text columns standardized.")
+        # Remove duplicates
+        logging.info("Removing duplicates...")
+        initial_rows = df.shape[0]
+        df.drop_duplicates(inplace=True)
+        logging.info(f"Removed {initial_rows - df.shape[0]} duplicate rows.")
 
-        # ✅ Extract emojis and store them in a new column
-        df.loc[:, 'emoji_used'] = df['Message'].apply(extract_emojis)
-        logging.info("✅ Emojis extracted and stored in 'emoji_used' column.")
-        
-        # ✅ Remove emojis from message text
-        df.loc[:, 'Message'] = df['Message'].apply(remove_emojis)
+        # Convert datetime columns
+        logging.info("Correcting data types...")
+        datetime_cols = ['signup_time', 'purchase_time']
+        for col in datetime_cols:
+            if col in df.columns:
+                df[col] = pd.to_datetime(df[col])
+                logging.info(f"Converted '{col}' to datetime.")
 
-        # ✅ Extract YouTube links into a separate column
-        df.loc[:, 'youtube_links'] = df['Message'].apply(extract_youtube_links)
-        logging.info("✅ YouTube links extracted and stored in 'youtube_links' column.")
-
-        # ✅ Remove YouTube links from message text
-        df.loc[:, 'Message'] = df['Message'].apply(remove_youtube_links)
-
-        # ✅ Rename columns to match PostgreSQL schema
-        df = df.rename(columns={
-            "Channel Title": "channel_title",
-            "Channel Username": "channel_username",
-            "ID": "message_id",
-            "Message": "message",
-            "Date": "message_date",
-            "Media Path": "media_path",
-            "emoji_used": "emoji_used",
-            "youtube_links": "youtube_links"
-        })
-
-        logging.info("✅ Data cleaning completed successfully.")
+        logging.info(f"Final shape after cleaning: {df.shape}")
+        logging.info("Data cleaning completed successfully.\n")
         return df
-    except Exception as e:
-        logging.error(f"❌ Data cleaning error: {e}")
-        raise
 
-def save_cleaned_data(df, output_path):
-    """ Save cleaned data to a new CSV file. """
-    try:
-        df.to_csv(output_path, index=False)
-        logging.info(f"✅ Cleaned data saved successfully to '{output_path}'.")
-        print(f"✅ Cleaned data saved successfully to '{output_path}'.")
     except Exception as e:
-        logging.error(f"❌ Error saving cleaned data: {e}")
+        logging.error(f"Error during cleaning: {str(e)}", exc_info=True)
         raise
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+def univariate_analysis(data, column, bins=30):
+    """Perform univariate analysis for a numerical column."""
+    logging.info(f"Generating univariate analysis for column '{column}'...")
+    plt.figure(figsize=(8, 6))
+    sns.histplot(data[column], bins=bins, kde=True)
+    plt.title(f'Distribution of {column}')
+    plt.xlabel(column)
+    plt.ylabel('Frequency')
+    plt.show()
+def analyze_categorical_features(data, column):
+    """Analyze a categorical feature by plotting its value counts."""
+    logging.info(f"Analyzing categorical feature '{column}'...")
+    plt.figure(figsize=(8, 6))
+    sns.countplot(data=data, x=column)
+    plt.title(f'Value Counts of {column}')
+    plt.xlabel(column)
+    plt.ylabel('Count')
+    plt.xticks(rotation=45)
+    plt.show()
+def correlation_matrix(data):
+    """Compute and visualize the correlation matrix."""
+    logging.info("Generating correlation matrix...")
+    data = data.select_dtypes(include=['float64', 'int64'])
+    corr = data.corr()
+    plt.figure(figsize=(10, 8))
+    sns.heatmap(corr, annot=True, cmap='coolwarm', fmt='.2f')
+    plt.title('Correlation Matrix')
+    plt.show()
+def bivariate_analysis(data, x_column, y_column):
+    """Perform bivariate analysis between two numerical columns."""
+    logging.info(f"Generating bivariate analysis for '{x_column}' vs '{y_column}'...") 
+
+    plt.figure(figsize=(8, 6))
+    sns.scatterplot(data=data, x=x_column, y=y_column)
+    plt.title(f'{x_column} vs {y_column}')
+    plt.xlabel(x_column)
+    plt.ylabel(y_column)
+    plt.show()
+def analyze_and_remove_duplicates(data):
+    """Analyze and remove duplicate rows."""
+    duplicates = data.duplicated().sum()
+    if duplicates == 0:
+        logging.info("No duplicate rows found.")
+    else:
+        logging.info(f"Found {duplicates} duplicate rows. Removing them...")
+        data.drop_duplicates(inplace=True)
+    return data
+def ip_to_int(ip):
+    """Convert an IP address string to an integer."""
+    return int(parts)
