@@ -56,7 +56,7 @@ fig_geolocation = px.bar(
 # Bar Chart for Fraud Cases by Device and Browser
 fig_fraud_by_device_browser = px.bar(
     fraud_by_device_browser,
-    x='device_id',
+    x='browser',
     y='class',
     color='browser',
     title='Fraud Cases by Device and Browser',

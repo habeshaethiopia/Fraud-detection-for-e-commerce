@@ -8,11 +8,11 @@ WORKDIR /app
 COPY . .
 
 # Install any needed packages specified in requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install -r requirements.txt
 
-# Make port 5000 available to the world outside this container
-EXPOSE 5000
+# Make ports 5001 (Flask) and 8050 (Dash) available to the world outside this container
+EXPOSE 5001 8050
 
 # Run the Flask application
 
-CMD ["mlflow", "ui", "&&",  "python", "src/server.py"]
+CMD ["mlflow", "ui", "&&",  "python", "src/server.py","&&",  "python", "src/app.py" ]
