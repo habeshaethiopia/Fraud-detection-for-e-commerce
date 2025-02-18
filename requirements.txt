@@ -6,7 +6,6 @@ seaborn
 joblib
 mlflow
 scikit-learn
-torch
 flask
 shap
 lime

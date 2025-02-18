@@ -7,12 +7,18 @@ WORKDIR /app
 # Copy the current directory contents into the container at /app
 COPY . .
 
-# Install any needed packages specified in requirements.txt
-RUN pip install -r requirements.txt
+# Create a virtual environment
+RUN python -m venv /app/venv
+
+# Activate the virtual environment and install any needed packages specified in requirements.txt
+RUN /app/venv/bin/pip install --upgrade pip && \
+    /app/venv/bin/pip install -r requirements.txt
 
 # Make ports 5001 (Flask) and 8050 (Dash) available to the world outside this container
 EXPOSE 5001 8050
 
-# Run the Flask application
+# Set the entrypoint to use the virtual environment
+ENTRYPOINT ["/app/venv/bin/python"]
 
-CMD ["mlflow", "ui", "&&",  "python", "src/server.py","&&",  "python", "src/app.py" ]
+# Run the Flask application
+CMD ["mlflow", "ui", "&&", "src/server.py", "&&", "src/app.py"]
