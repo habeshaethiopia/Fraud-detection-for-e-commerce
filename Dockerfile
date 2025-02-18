@@ -21,4 +21,4 @@ EXPOSE 5001 8050
 ENTRYPOINT ["/app/venv/bin/python"]
 
 # Run the Flask application
-CMD ["-m", "mlflow", "ui", "&&", "-m", "src/server.py", "&&", "-m", "src/app.py"]
+CMD ["mlflow", "ui", "&&", "src/server.py", "&&", "src/app.py"]
