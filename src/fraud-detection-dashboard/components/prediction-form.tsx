@@ -248,8 +248,7 @@ export function PredictionForm() {
                     <div className="flex items-center gap-2">
                       <Progress
                         value={result.probability * 100}
-                        className="h-2"
-                        indicatorClassName={result.prediction === 1 ? "bg-red-500" : "bg-green-500"}
+                        className={`h-2 ${result.prediction === 1 ? "bg-red-500" : "bg-green-500"}`}
                       />
                       <span className="text-sm font-medium">{(result.probability * 100).toFixed(2)}%</span>
                     </div>
@@ -265,13 +264,13 @@ export function PredictionForm() {
                       <div key={index} className="space-y-1">
                         <div className="flex justify-between text-sm">
                           <span>{feature}</span>
-                          <span className={value > 0 ? "text-red-500" : "text-green-500"}>
-                            {value > 0 ? "+" : ""}
+                          <span className={Number(value) > 0 ? "text-red-500" : "text-green-500"}>
+                            {Number(value) > 0 ? "+" : ""}
                             {(value as number).toFixed(4)}
                           </span>
                         </div>
                         <div className="relative h-2 bg-gray-100 rounded-full overflow-hidden">
-                          {value > 0 ? (
+                          {Number(value) > 0 ? (
                             <div
                               className="absolute top-0 right-1/2 h-full bg-red-500"
                               style={{ width: `${Math.abs(value as number) * 100}%` }}
@@ -293,7 +292,7 @@ export function PredictionForm() {
 
           {!result && !error && (
             <div className="flex flex-col items-center justify-center h-[300px] text-center text-muted-foreground">
-              <p>Enter transaction details and click "Predict Fraud Risk" to get a prediction</p>
+              <p>Enter transaction details and click &quot;Predict Fraud Risk&quot; to get a prediction</p>
             </div>
           )}
         </CardContent>

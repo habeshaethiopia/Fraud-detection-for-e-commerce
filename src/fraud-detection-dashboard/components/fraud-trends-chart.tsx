@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { fetchFraudTrends, type FraudTrend } from "../services/api"
+import { fetchFraudTrends } from "../services/api"
 import { AlertTriangle } from "lucide-react"
 
 interface FraudTrendsChartProps {

@@ -1,0 +1,7 @@
+FROM node:18
+WORKDIR /app
+COPY ./src/fraud-detection-dashboard ./
+RUN npm run build
+COPY . .
+CMD ["npm", "run", "start"]
+EXPOSE 3000
