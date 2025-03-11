@@ -1,0 +1,8 @@
+FROM python:3.9-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY src/ .
+ENV PORT=5001
+CMD ["python", "src/server.py"]
+EXPOSE 5001

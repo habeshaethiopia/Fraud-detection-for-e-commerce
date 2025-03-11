@@ -1,4 +1,3 @@
-
 # **Fraud Detection for E-commerce and Bank Transactions**
 
 ## **Overview**
@@ -103,6 +102,17 @@ Fraud detection is crucial for maintaining transaction security, preventing fina
    pip install -r requirements.txt
    ```
 
+### **Running the Docker Compose Setup**
+1. Build and run the Docker Compose setup:
+   ```bash
+   docker-compose up --build
+   ```
+
+2. Access the services:
+   - **MLflow UI**: [http://localhost:5000](http://localhost:5000)
+   - **Backend Server**: [http://localhost:5001](http://localhost:5001)
+   - **Dashboard**: [http://localhost:3000](http://localhost:3000)
+
 ### **Running the Flask API**
 1. Build and run the Docker container:
    ```bash
@@ -133,7 +143,6 @@ Fraud detection is crucial for maintaining transaction security, preventing fina
    ```
 
 ---
-
 
 ## **Acknowledgments**
 Special thanks to the tutors at 10 Academy: Mahlet, Elias, Rediet, Kerod, Emitinan, and Rehmet for their guidance and support throughout the project.
