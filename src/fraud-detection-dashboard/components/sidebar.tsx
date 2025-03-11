@@ -5,12 +5,12 @@ import Link from "next/link"
 import {
   ChevronLeft,
   LayoutDashboard,
-  AlertTriangle,
-  BarChart3,
-  Globe,
-  LineChart,
-  Settings,
-  HelpCircle,
+  // AlertTriangle,
+  // BarChart3,
+  // Globe,
+  // LineChart,
+  // Settings,
+  // HelpCircle,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -25,12 +25,12 @@ export function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
 
   const navItems = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, href: "/" },
-    { id: "fraud-alerts", label: "Fraud Alerts", icon: AlertTriangle, href: "/fraud-alerts" },
-    { id: "transactions", label: "Transactions", icon: BarChart3, href: "/transactions" },
-    { id: "geo-analysis", label: "Geo Analysis", icon: Globe, href: "/geo-analysis" },
-    { id: "trends", label: "Trends", icon: LineChart, href: "/trends" },
-    { id: "settings", label: "Settings", icon: Settings, href: "/settings" },
-    { id: "help", label: "Help", icon: HelpCircle, href: "/help" },
+    // { id: "fraud-alerts", label: "Fraud Alerts", icon: AlertTriangle, href: "/fraud-alerts" },
+    // { id: "transactions", label: "Transactions", icon: BarChart3, href: "/transactions" },
+    // { id: "geo-analysis", label: "Geo Analysis", icon: Globe, href: "/geo-analysis" },
+    // { id: "trends", label: "Trends", icon: LineChart, href: "/trends" },
+    // { id: "settings", label: "Settings", icon: Settings, href: "/settings" },
+    // { id: "help", label: "Help", icon: HelpCircle, href: "/help" },
   ]
 
   return (

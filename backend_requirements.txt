@@ -1,0 +1,10 @@
+flask 
+flask_cors 
+numpy 
+pandas
+mlflow
+shap
+pickle
+logging
+os
+requests

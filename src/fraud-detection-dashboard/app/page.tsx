@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState,useEffect } from "react"
 import { Header } from "@/components/header"
 import { Sidebar } from "@/components/sidebar"
 import { SummaryCards } from "@/components/summary-cards"
@@ -13,9 +13,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 export default function Dashboard() {
   const [collapsed, setCollapsed] = useState(false)
   const [activeTab, setActiveTab] = useState("overview")
+  const [isClient, setIsClient] = useState(false)
+ 
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
 
   return (
     <div className="flex h-screen bg-muted/40">
+      {isClient ? "":""}
       <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
       <div className="flex flex-col flex-1 overflow-hidden">
         <Header collapsed={collapsed} setCollapsed={setCollapsed} />
