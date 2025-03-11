@@ -1,10 +1,7 @@
-flask 
-flask_cors 
-numpy 
+Flask
+Flask-Cors
+numpy
 pandas
 mlflow
 shap
-pickle
-logging
-os
 requests
