@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import numpy as np
 import pandas as pd
 import mlflow.sklearn
@@ -10,6 +11,7 @@ import requests
 
 # Initialize Flask app
 app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "*"}})  # Allow CORS for all routes
 
 # Configure logging
 os.makedirs("./logs", exist_ok=True)
@@ -118,10 +120,7 @@ def fraud_trends():
         fraud_data = pd.read_csv("Data/fraud_data_cleaned_before_encode.csv")
 
         # Convert timestamps to datetime purchase_hour,purchase_date
-
-        fraud_data["purchase_time"] = pd.to_datetime(
-            fraud_data["purchase_date"]
-        )
+        fraud_data["purchase_time"] = pd.to_datetime(fraud_data["purchase_date"])
 
         # Group by date and count fraud cases
         fraud_trends = (
@@ -132,7 +131,7 @@ def fraud_trends():
         )
         fraud_trends.columns = ["date", "fraud_cases"]
 
-        return fraud_trends.to_json(orient="records")
+        return jsonify(fraud_trends.to_dict(orient="records"))
     except Exception as e:
         logger.error("Error retrieving fraud trends: %s", str(e))
         return jsonify({"error": str(e)}), 500
@@ -148,7 +147,7 @@ def geolocation_analysis():
         geolocation = fraud_data.groupby("country")["class"].sum().reset_index()
         geolocation.columns = ["country", "fraud_cases"]
 
-        return geolocation.to_json(orient="records")
+        return jsonify(geolocation.to_dict(orient="records"))
     except Exception as e:
         logger.error("Error retrieving geolocation analysis: %s", str(e))
         return jsonify({"error": str(e)}), 500
@@ -165,7 +164,7 @@ def fraud_by_device_browser():
             fraud_data.groupby(["browser"])["class"].sum().reset_index()
         )
 
-        return fraud_by_device_browser.to_json(orient="records", indent=4)
+        return jsonify(fraud_by_device_browser.to_dict(orient="records"))
     except Exception as e:
         logger.error("Error retrieving fraud by device and browser: %s", str(e))
         return jsonify({"error": str(e)}), 500
